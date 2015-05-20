@@ -1,0 +1,33 @@
+{
+  "name": "whiletrue",
+  "version": "1.0.12",
+  "description": "Another LINQ provider for Javascript",
+  "main": "build/jslinq.min.js",
+  "moduleType": [
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "iterator", 
+	"while", 
+	"timeout", 
+	"stopwatch"
+  ],
+  "authors": [
+    "maurobussini"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/maurobussini/whiletrue",
+  "ignore": [
+    "node_modules",
+	"src",
+    "test",
+    ".idea",
+	".gitignore",
+	"bower.json",
+	"Gruntfile.js",
+	"LICENSE",
+	"package.json",
+	"README.md"
+  ]
+}
