@@ -1,8 +1,8 @@
 {
   "name": "whiletrue",
-  "version": "1.0.12",
-  "description": "Another LINQ provider for Javascript",
-  "main": "build/jslinq.min.js",
+  "version": "1.0.1",
+  "description": "Start/stop/pause/repeat: task runner in Javascript",
+  "main": "build/whiletrue.min.js",
   "moduleType": [
     "globals",
     "node"

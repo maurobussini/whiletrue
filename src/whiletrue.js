@@ -52,8 +52,14 @@
             //Define atomic function for task run
             var atom = function(){
 
+                //Create argument for condition and task
+                var state = {
+                    iterations: self.iterations,
+                    delay: self.delay
+                };
+
                 //Check the running condition
-                var result = self.condition();
+                var result = self.condition(state);
 
                 //Is result is not true, resolve and exit
                 if (result == false){
@@ -63,20 +69,37 @@
                 }
                 else{
 
-                    //Run task
-                    self.task();
+                    //Run task (inside promise)
+                    promiseTask(state)
+                        .then(function(){
 
-                    //Increment iterations
-                    self.iterations++;
+                            //Increment iterations
+                            self.iterations++;
 
-                    //Set timeout for the next execution
-                    setTimeout(atom, self.delay);
+                            //Set timeout for next execution
+                            setTimeout(atom, self.delay);
+                        });
                 }
             }
 
             //Execute operation for the first time (this
             //is required to start the task immediately
             atom();
+
+            //Returns promise
+            return deferred.promise;
+        }
+
+        //Task wrapped inside promise
+        function promiseTask(state){
+
+            //Create a promise using "Q"
+            var deferred = Q.defer();
+
+            //Invoke task
+            self.task(function(){
+                deferred.resolve();
+            }, state);
 
             //Returns promise
             return deferred.promise;
