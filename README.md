@@ -10,7 +10,10 @@ Start/stop/pause/repeat: task runner in Javascript
 ```javascript
 //Condition: iterate 10 times
 function condition(state){
-    return state.iterations < 10;
+
+    //In 'state.index' is contained iteration 
+    //number '0-based'
+    return state.index < 10;
 }
 ```
 
@@ -38,7 +41,7 @@ function longTask(done, state){
 }
 ```
 
-#### just setup the "whiletrue" runner (with 10 millisecond of delay between each iterations)...
+#### just setup the "whiletrue" runner (with 10 millisecond of delay between each iteration)...
 
 ```javascript
 //Setup: Create a "whiletrue" runner with 10 ms delay
@@ -50,6 +53,16 @@ var runner = whiletrue(condition, longTask, 10);
 ```javascript
 //Start execution
 runner.run()
+    .then(function(){
+        console.log("Job completed");
+    });
+```
+
+#### ...or start the execution in parallel mode...
+
+```javascript
+//Start execution
+runner.runParallel()
     .then(function(){
         console.log("Job completed");
     });

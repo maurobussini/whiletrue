@@ -3,16 +3,16 @@
     //UMD - Universal Module Definition
 	if (typeof define === 'function' && define.amd) {
         //AMD: register as an anonymous module without dependencies
-        define([], factory);
+        define(['q'], factory);
     } else if (typeof exports === 'object') {
         //Node: does not work with strict CommonJS, but only CommonJS-like 
 		//environments that support module.exports, like Node.
-        module.exports = factory();
+        module.exports = factory(require('q'));
     } else {
         //Browser: globals (root is window)
-        root.whiletrue = factory();
+        root.whiletrue = factory(root.Q);
     }	
-}(this, function () {
+}(this, function (Q) {
 
     //Check if "Q" is available
     if (!Q) throw new Error("whiletrue requires 'Q' library");
@@ -42,6 +42,84 @@
 
         //Set function of prototype
         self.run = run;
+        self.runParallel = runParallel;
+
+        //Promise builder function
+        function buildPromise (currentState){
+
+            //Create new deferred for current iteration
+            var iterationDeferred = Q.defer();
+
+            //Set timeout for execution
+            setTimeout(function(){
+
+                //Run task (inside promise)
+                promiseTask(currentState)
+                    .then(function(time){
+
+                        //Increment total iterations completed
+                        self.iterations++;
+
+                        //Create result of completed execution
+                        var executionResult = {
+                            iterations: self.iterations,
+                            delay: currentState.delay,
+                            index: currentState.index,
+                            time: time
+                        };
+
+                        //Resolve iteration promise
+                        iterationDeferred.resolve(executionResult);
+                    });
+
+            }, self.delay);
+
+            //Returns promise
+            return iterationDeferred.promise;
+        };
+
+        function runParallel(){
+
+            //Create new main deferred
+            var mainDeferred = Q.defer();
+
+            //Define an array of promise
+            var allPromises = [];
+
+            //Define current state
+            var state = {
+                iterations: self.iterations,
+                delay: self.delay,
+                index: 0
+            };
+
+            //Iterate for each requested iterations
+            while (self.condition(state)){
+
+                //Create promise of execution
+                var promiseMe = buildPromise(state);
+
+                //Push promise on array
+                allPromises.push(promiseMe);
+
+                //Create state for current iteration
+                state = {
+                    iterations: self.iterations,
+                    delay: self.delay,
+                    index: allPromises.length
+                };
+            }
+
+            //When all promises are resolved
+            Q.all(allPromises).then(function(allResults){
+
+                //Resolve main promise
+                mainDeferred.resolve(allResults);
+            });
+
+            //returns main deferred
+            return mainDeferred.promise;
+        }
 
         //Runs execution of task
         function run(){
@@ -49,13 +127,17 @@
             //Create a promise using "Q"
             var deferred = Q.defer();
 
+            //Define all results
+            var allResults = [];
+
             //Define atomic function for task run
             var atom = function(){
 
                 //Create argument for condition and task
                 var state = {
                     iterations: self.iterations,
-                    delay: self.delay
+                    delay: self.delay,
+                    index: allResults.length
                 };
 
                 //Check the running condition
@@ -65,16 +147,27 @@
                 if (result == false){
 
                     //Execute resolve of execution
-                    deferred.resolve();
+                    deferred.resolve(allResults);
                 }
                 else{
 
                     //Run task (inside promise)
                     promiseTask(state)
-                        .then(function(){
+                        .then(function(time){
 
                             //Increment iterations
                             self.iterations++;
+
+                            //Create execution result
+                            var executionResult = {
+                                iterations: self.iterations,
+                                delay: self.delay,
+                                index: allResults.length,
+                                time: time
+                            };
+
+                            //Push to all results
+                            allResults.push(executionResult);
 
                             //Set timeout for next execution
                             setTimeout(atom, self.delay);
@@ -96,9 +189,27 @@
             //Create a promise using "Q"
             var deferred = Q.defer();
 
+            //Get start date
+            var start = new Date();
+
+            //Append time to state
+            state.timer = {
+                start: start,
+                duration: null,
+            };
+
             //Invoke task
             self.task(function(){
-                deferred.resolve();
+
+                //Detect time
+                var time = {
+                    start: start,
+                    duration: new Date() - start
+                };
+
+                //Resolve current task with timing
+                deferred.resolve(time);
+
             }, state);
 
             //Returns promise
