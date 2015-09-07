@@ -1,6 +1,6 @@
 {
   "name": "whiletrue",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Start/stop/pause/repeat: task runner in Javascript",
   "main": "src/whiletrue.js",
   "author": "maurobussini",

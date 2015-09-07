@@ -1,6 +1,6 @@
 {
   "name": "whiletrue",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Start/stop/pause/repeat: task runner in Javascript",
   "main": "build/whiletrue.min.js",
   "moduleType": [
@@ -30,5 +30,8 @@
 	"LICENSE",
 	"package.json",
 	"README.md"
-  ]
+  ], 
+  "dependencies": {
+    "q": "^1.4.1"
+  }
 }
